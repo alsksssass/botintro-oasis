@@ -9,7 +9,156 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      commands: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          name: string
+          required_permissions: string[]
+          updated_at: string
+          updated_by: string
+          usage: string
+        }
+        Insert: {
+          category: string
+          content?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          name: string
+          required_permissions?: string[]
+          updated_at?: string
+          updated_by: string
+          usage: string
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          name?: string
+          required_permissions?: string[]
+          updated_at?: string
+          updated_by?: string
+          usage?: string
+        }
+        Relationships: []
+      }
+      message_formats: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          format_type: string
+          guild_id: string
+          id: string
+          is_enabled: boolean
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          format_type: string
+          guild_id: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          format_type?: string
+          guild_id?: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          recommendations: number
+          tags: string[] | null
+          thumbnail: string
+          title: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          recommendations?: number
+          tags?: string[] | null
+          thumbnail: string
+          title: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          recommendations?: number
+          tags?: string[] | null
+          thumbnail?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          avatar: string
+          created_at: string
+          discord_id: string
+          display_name: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar: string
+          created_at?: string
+          discord_id: string
+          display_name: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string
+          created_at?: string
+          discord_id?: string
+          display_name?: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

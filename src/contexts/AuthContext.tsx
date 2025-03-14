@@ -1,6 +1,7 @@
+
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/lib/types';
-import { supabase, authService } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
@@ -109,13 +110,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // This would be replaced with Discord OAuth through Supabase
       // For now, just simulate a successful login with mock data
+      
+      // Create a test user in the users table
       const mockUser: User = {
-        id: '1',
+        id: crypto.randomUUID(),
         discordId: '123456789012345678',
         displayName: 'Demo User',
         avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
         role: 'admin',
       };
+      
+      // Insert the mock user into the users table
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          id: mockUser.id,
+          discord_id: mockUser.discordId,
+          display_name: mockUser.displayName,
+          avatar: mockUser.avatar,
+          role: mockUser.role,
+        });
+        
+      if (error) {
+        throw error;
+      }
       
       setUser(mockUser);
       toast({

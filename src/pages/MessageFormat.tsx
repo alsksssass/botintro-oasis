@@ -1,16 +1,20 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import PageTransition from '@/components/PageTransition';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Eye, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Save, Eye, MessageSquare, Loader } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
+import { useToast } from '@/components/ui/use-toast';
+import { messageFormatsService } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface MessageFormatFormValues {
   formatType: 'welcome' | 'goodbye' | 'announcement' | 'custom';
@@ -21,11 +25,20 @@ interface MessageFormatFormValues {
 const MessageFormat: React.FC = () => {
   const { guildId } = useParams<{ guildId: string }>();
   const navigate = useNavigate();
-  const [previewMode, setPreviewMode] = React.useState(false);
+  const { toast } = useToast();
   
-  // This would be fetched from Supabase in a real implementation
-  const initialData = {
-    formatType: 'welcome' as const,
+  const { data: messageFormats, isLoading, error } = useQuery({
+    queryKey: ['messageFormats', guildId],
+    queryFn: () => guildId ? messageFormatsService.getMessageFormats(guildId) : Promise.reject('No guild ID'),
+    enabled: !!guildId,
+  });
+  
+  const initialData: MessageFormatFormValues = messageFormats?.[0] ? {
+    formatType: messageFormats[0].formatType,
+    content: messageFormats[0].content,
+    isEnabled: messageFormats[0].isEnabled
+  } : {
+    formatType: 'welcome',
     content: '# Welcome to our server, {user}!\n\nWe\'re glad to have you here. Please check out our <#123456789> channel for the rules.\n\n## Useful commands\n- `/help` - List available commands\n- `/role` - Assign yourself a role\n\nEnjoy your stay!',
     isEnabled: true
   };
@@ -34,16 +47,114 @@ const MessageFormat: React.FC = () => {
     defaultValues: initialData
   });
   
+  const saveMessageFormat = useMutation({
+    mutationFn: async (values: MessageFormatFormValues) => {
+      if (!guildId) throw new Error("No guild ID provided");
+      
+      if (messageFormats?.[0]) {
+        const { error } = await supabase
+          .from('message_formats')
+          .update({
+            format_type: values.formatType,
+            content: values.content,
+            is_enabled: values.isEnabled,
+            updated_by: 'system',
+          })
+          .eq('id', messageFormats[0].id);
+          
+        if (error) throw error;
+        return 'updated';
+      } 
+      
+      const { error } = await supabase
+        .from('message_formats')
+        .insert({
+          guild_id: guildId,
+          format_type: values.formatType,
+          content: values.content,
+          is_enabled: values.isEnabled,
+          created_by: 'system',
+          updated_by: 'system',
+        });
+        
+      if (error) throw error;
+      return 'created';
+    },
+    onSuccess: (result) => {
+      toast({
+        title: `Message format ${result}`,
+        description: `The message format was successfully ${result}.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving message format:', error);
+      toast({
+        title: 'Error saving message format',
+        description: 'There was a problem saving the message format. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  });
+  
   const onSubmit = (data: MessageFormatFormValues) => {
-    console.log('Saving message format:', data);
-    // In a real implementation, this would save to Supabase
-    // toast.success('Message format saved successfully!');
+    saveMessageFormat.mutate(data);
   };
   
-  const togglePreview = () => {
-    setPreviewMode(!previewMode);
-  };
+  if (isLoading) {
+    return (
+      <PageTransition>
+        <div className="container mx-auto px-6 py-8">
+          <Button 
+            variant="ghost" 
+            className="mb-6" 
+            onClick={() => navigate('/dashboard/guilds')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Servers
+          </Button>
+          
+          <div className="mb-8">
+            <Skeleton className="h-10 w-1/2 mb-2" />
+            <Skeleton className="h-6 w-3/4" />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1 space-y-6">
+              <Skeleton className="h-32 w-full" />
+            </div>
+            <div className="md:col-span-3">
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
   
+  if (error) {
+    return (
+      <PageTransition>
+        <div className="container mx-auto px-6 py-8">
+          <Button 
+            variant="ghost" 
+            className="mb-6" 
+            onClick={() => navigate('/dashboard/guilds')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Servers
+          </Button>
+          
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Error Loading Message Format</h1>
+            <p className="text-muted-foreground">
+              There was a problem loading the message format. Please try again later.
+            </p>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+
   return (
     <PageTransition>
       <div className="container mx-auto px-6 py-8">
@@ -162,8 +273,15 @@ const MessageFormat: React.FC = () => {
             </div>
             
             <div className="flex justify-end">
-              <Button type="submit">
-                <Save className="h-4 w-4 mr-2" />
+              <Button 
+                type="submit" 
+                disabled={saveMessageFormat.isPending}
+              >
+                {saveMessageFormat.isPending ? (
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 Save Message Format
               </Button>
             </div>

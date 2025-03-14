@@ -1,27 +1,11 @@
 
-import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/lib/database.types';
-
-// Get environment variables for Supabase connection
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Validate that environment variables are set
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "Supabase URL or Anon Key is missing. Make sure to set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables."
-  );
-}
-
-// Create Supabase client with types
-export const supabase = createClient<Database>(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-);
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+import { Command, Theme, MessageFormat, User } from '@/lib/types';
 
 // Helper functions for commands
 export const commandsService = {
-  getCommands: async () => {
+  getCommands: async (): Promise<Command[]> => {
     const { data, error } = await supabase
       .from('commands')
       .select('*')
@@ -32,10 +16,22 @@ export const commandsService = {
       throw error;
     }
     
-    return data;
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      usage: item.usage,
+      category: item.category,
+      requiredPermissions: item.required_permissions,
+      content: item.content || undefined,
+      createdBy: item.created_by,
+      updatedBy: item.updated_by,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }));
   },
   
-  getCommandById: async (id: string) => {
+  getCommandById: async (id: string): Promise<Command> => {
     const { data, error } = await supabase
       .from('commands')
       .select('*')
@@ -47,13 +43,25 @@ export const commandsService = {
       throw error;
     }
     
-    return data;
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      usage: data.usage,
+      category: data.category,
+      requiredPermissions: data.required_permissions,
+      content: data.content || undefined,
+      createdBy: data.created_by,
+      updatedBy: data.updated_by,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
   }
 };
 
 // Helper functions for themes
 export const themesService = {
-  getThemes: async () => {
+  getThemes: async (): Promise<Theme[]> => {
     const { data, error } = await supabase
       .from('themes')
       .select('*')
@@ -64,10 +72,22 @@ export const themesService = {
       throw error;
     }
     
-    return data;
+    return data.map(item => ({
+      id: item.id,
+      title: item.title,
+      thumbnail: item.thumbnail,
+      description: item.description,
+      recommendations: item.recommendations,
+      content: item.content,
+      tags: item.tags || undefined,
+      createdBy: item.created_by,
+      updatedBy: item.updated_by,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }));
   },
   
-  getThemeById: async (id: string) => {
+  getThemeById: async (id: string): Promise<Theme> => {
     const { data, error } = await supabase
       .from('themes')
       .select('*')
@@ -79,13 +99,25 @@ export const themesService = {
       throw error;
     }
     
-    return data;
+    return {
+      id: data.id,
+      title: data.title,
+      thumbnail: data.thumbnail,
+      description: data.description,
+      recommendations: data.recommendations,
+      content: data.content,
+      tags: data.tags || undefined,
+      createdBy: data.created_by,
+      updatedBy: data.updated_by,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
   }
 };
 
 // Helper functions for message formats
 export const messageFormatsService = {
-  getMessageFormats: async (guildId: string) => {
+  getMessageFormats: async (guildId: string): Promise<MessageFormat[]> => {
     const { data, error } = await supabase
       .from('message_formats')
       .select('*')
@@ -96,13 +128,23 @@ export const messageFormatsService = {
       throw error;
     }
     
-    return data;
+    return data.map(item => ({
+      id: item.id,
+      guildId: item.guild_id,
+      formatType: item.format_type as 'welcome' | 'goodbye' | 'announcement' | 'custom',
+      content: item.content,
+      isEnabled: item.is_enabled,
+      createdBy: item.created_by,
+      updatedBy: item.updated_by,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }));
   }
 };
 
 // Auth service for user management
 export const authService = {
-  getCurrentUser: async () => {
+  getCurrentUser: async (): Promise<User | null> => {
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {
@@ -114,10 +156,32 @@ export const authService = {
       return null;
     }
     
-    return session.user;
+    // Get user profile from users table
+    const { data, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      return null;
+    }
+    
+    if (!data) {
+      return null;
+    }
+    
+    return {
+      id: data.id,
+      discordId: data.discord_id,
+      displayName: data.display_name,
+      avatar: data.avatar,
+      role: data.role as 'admin' | 'regular' | 'visitor'
+    };
   },
   
-  getUserProfile: async (userId: string) => {
+  getUserProfile: async (userId: string): Promise<User | null> => {
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -129,6 +193,16 @@ export const authService = {
       throw error;
     }
     
-    return data;
+    if (!data) {
+      return null;
+    }
+    
+    return {
+      id: data.id,
+      discordId: data.discord_id,
+      displayName: data.display_name,
+      avatar: data.avatar,
+      role: data.role as 'admin' | 'regular' | 'visitor'
+    };
   }
 };

@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import PageTransition from '@/components/PageTransition';
-import { Theme } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Heart, ChevronLeft, Share2 } from 'lucide-react';
+import { Heart, ChevronLeft, Share2, Loader } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { themesService } from '@/lib/supabase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ThemeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,32 +15,12 @@ const ThemeDetail: React.FC = () => {
   const { isAuthenticated, hasRole } = useAuth();
   const [liked, setLiked] = React.useState(false);
   
-  // Mock data - this would be fetched from Supabase in production
-  const mockTheme: Theme = {
-    id: id || '1',
-    title: 'Cyberpunk 2077',
-    thumbnail: 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=1974&auto=format&fit=crop',
-    description: 'An open-world, action-adventure story set in the megalopolis of Night City.',
-    recommendations: 238,
-    content: `
-      <p>Cyberpunk 2077 is an open-world, action-adventure RPG set in the megalopolis of Night City, where you play as a cyberpunk mercenary wrapped up in a do-or-die fight for survival.</p>
-      
-      <p>In this game, you'll explore the vast urban sprawl of Night City, a place of dreams that can break you if you're not strong enough. You'll face corporate backstabbers, underground hustlers, and everything in between as you chase after a one-of-a-kind implant that is the key to immortality.</p>
-      
-      <h3>Key Features:</h3>
-      <ul>
-        <li>Create your own cyberpunk with customizable cyberware, skillset, and playstyle.</li>
-        <li>Explore a vast city where your choices shape the story and the world around you.</li>
-        <li>Take on dangerous mercenary work and become an urban legend in Night City.</li>
-      </ul>
-      
-      <p>The game features a rich, branching narrative with plenty of action and adventure. Whether you prefer stealth, combat, or social solutions, there's always a way to solve problems in Cyberpunk 2077.</p>
-    `,
-    createdBy: 'admin',
-    updatedBy: 'admin',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  // Fetch theme data
+  const { data: theme, isLoading, error } = useQuery({
+    queryKey: ['theme', id],
+    queryFn: () => id ? themesService.getThemeById(id) : Promise.reject('No ID provided'),
+    enabled: !!id,
+  });
   
   const canEdit = isAuthenticated && hasRole('admin');
   
@@ -47,9 +29,64 @@ const ThemeDetail: React.FC = () => {
     // In a real app, this would update the count in Supabase
   };
   
-  if (!mockTheme) {
-    navigate('/themes');
-    return null;
+  if (isLoading) {
+    return (
+      <PageTransition>
+        <div className="container mx-auto px-6 py-20">
+          <div className="mb-8">
+            <Link 
+              to="/themes" 
+              className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back to Themes
+            </Link>
+          </div>
+          
+          <div className="max-w-4xl mx-auto flex flex-col gap-8">
+            <Skeleton className="w-full aspect-video rounded-xl" />
+            <Skeleton className="h-10 w-1/2" />
+            <Skeleton className="h-6 w-full" />
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+  
+  if (error || !theme) {
+    return (
+      <PageTransition>
+        <div className="container mx-auto px-6 py-20">
+          <div className="mb-8">
+            <Link 
+              to="/themes" 
+              className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back to Themes
+            </Link>
+          </div>
+          
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl font-bold mb-4">Theme Not Found</h1>
+            <p className="text-muted-foreground">
+              The requested theme could not be found or there was an error loading it.
+            </p>
+            <Button 
+              className="mt-8" 
+              onClick={() => navigate('/themes')}
+            >
+              Browse All Themes
+            </Button>
+          </div>
+        </div>
+      </PageTransition>
+    );
   }
 
   return (
@@ -70,15 +107,15 @@ const ThemeDetail: React.FC = () => {
             {/* Hero Image */}
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <img 
-                src={mockTheme.thumbnail} 
-                alt={mockTheme.title}
+                src={theme.thumbnail} 
+                alt={theme.title}
                 className="w-full h-full object-cover"
               />
             </div>
             
             {/* Title and Actions */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h1 className="text-3xl md:text-4xl font-bold">{mockTheme.title}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold">{theme.title}</h1>
               
               <div className="flex items-center gap-3">
                 <Button 
@@ -88,7 +125,7 @@ const ThemeDetail: React.FC = () => {
                   onClick={toggleLike}
                 >
                   <Heart className={`h-4 w-4 mr-2 ${liked ? 'fill-red-500' : 'group-hover:fill-red-500/10'}`} />
-                  {mockTheme.recommendations + (liked ? 1 : 0)}
+                  {theme.recommendations + (liked ? 1 : 0)}
                 </Button>
                 
                 <Button variant="outline" size="sm" className="group">
@@ -97,7 +134,7 @@ const ThemeDetail: React.FC = () => {
                 </Button>
                 
                 {canEdit && (
-                  <Link to={`/dashboard/themes/${mockTheme.id}/edit`}>
+                  <Link to={`/dashboard/themes/${theme.id}/edit`}>
                     <Button variant="default" size="sm">
                       Edit Theme
                     </Button>
@@ -107,12 +144,12 @@ const ThemeDetail: React.FC = () => {
             </div>
             
             {/* Description */}
-            <p className="text-lg text-muted-foreground">{mockTheme.description}</p>
+            <p className="text-lg text-muted-foreground">{theme.description}</p>
             
             {/* Content */}
             <div 
               className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: mockTheme.content }}
+              dangerouslySetInnerHTML={{ __html: theme.content }}
             />
           </div>
         </div>
