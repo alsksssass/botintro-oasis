@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import {
@@ -48,7 +49,7 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="relative w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+          <div className="relative w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
             B
           </div>
           <span className="text-xl font-semibold">BotName</span>
@@ -75,7 +76,9 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Auth Buttons / User Menu */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-2">
+          <ThemeToggle />
+          
           {isAuthenticated ? (
             <div className="flex items-center">
               <DropdownMenu>
@@ -112,7 +115,8 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeToggle />
           <Button 
             variant="ghost" 
             size="icon" 

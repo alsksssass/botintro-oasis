@@ -35,7 +35,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, index }) => {
           <div 
             className={cn(
               "absolute bottom-3 right-3 flex items-center gap-1 px-2 py-1",
-              "rounded-full bg-white/90 text-foreground text-xs font-medium"
+              "rounded-full bg-white/90 dark:bg-black/80 text-foreground text-xs font-medium"
             )}
           >
             <Heart className="h-3 w-3 text-red-500 fill-red-500" />

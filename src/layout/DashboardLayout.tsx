@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   LayoutDashboard, 
   Command, 
@@ -78,17 +80,20 @@ const DashboardLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 dark:bg-background">
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
-          <Sidebar collapsible className="border-r">
+          <Sidebar collapsible={true} className="border-r">
             <div className="flex h-14 items-center px-4 border-b">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="relative w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="relative w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                   B
                 </div>
                 <span className="text-lg font-semibold">Dashboard</span>
               </Link>
+              <div className="ml-auto">
+                <ThemeToggle />
+              </div>
             </div>
             
             <SidebarContent>

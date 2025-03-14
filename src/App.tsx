@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AnimatePresence } from "framer-motion";
 
 // Layouts
@@ -27,41 +28,43 @@ import MessageFormat from "@/pages/MessageFormat";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatePresence mode="wait">
-            <Routes>
-              {/* Main Layout Routes */}
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/commands" element={<Commands />} />
-                <Route path="/themes" element={<Themes />} />
-                <Route path="/themes/:id" element={<ThemeDetail />} />
-                <Route path="/login" element={<Login />} />
-              </Route>
+  <ThemeProvider defaultTheme="system">
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatePresence mode="wait">
+              <Routes>
+                {/* Main Layout Routes */}
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/commands" element={<Commands />} />
+                  <Route path="/themes" element={<Themes />} />
+                  <Route path="/themes/:id" element={<ThemeDetail />} />
+                  <Route path="/login" element={<Login />} />
+                </Route>
 
-              {/* Dashboard Layout Routes */}
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="commands" element={<Commands />} />
-                <Route path="themes" element={<Themes />} />
-                <Route path="guilds" element={<Guilds />} />
-                <Route path="guilds/:guildId/message-format" element={<MessageFormat />} />
-                {/* Add more dashboard routes here when needed */}
-              </Route>
+                {/* Dashboard Layout Routes */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="commands" element={<Commands />} />
+                  <Route path="themes" element={<Themes />} />
+                  <Route path="guilds" element={<Guilds />} />
+                  <Route path="guilds/:guildId/message-format" element={<MessageFormat />} />
+                  {/* Add more dashboard routes here when needed */}
+                </Route>
 
-              {/* 404 Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+                {/* 404 Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
