@@ -10,7 +10,9 @@ import {
   Settings, 
   LogOut, 
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Hash,
+  Server
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -20,7 +22,6 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from '@/comp
 const DashboardLayout: React.FC = () => {
   const { user, isAuthenticated, logout, hasRole } = useAuth();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
   
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
@@ -46,7 +47,13 @@ const DashboardLayout: React.FC = () => {
     { 
       name: 'Themes', 
       path: '/dashboard/themes', 
-      icon: Gamepad2, 
+      icon: Hash, 
+      adminOnly: false 
+    },
+    { 
+      name: 'Guilds', 
+      path: '/dashboard/guilds', 
+      icon: Server, 
       adminOnly: false 
     },
     { 
@@ -74,7 +81,7 @@ const DashboardLayout: React.FC = () => {
     <div className="min-h-screen bg-muted/30">
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
-          <Sidebar defaultCollapsed={false} collapsible className="border-r">
+          <Sidebar collapsible className="border-r">
             <div className="flex h-14 items-center px-4 border-b">
               <Link to="/" className="flex items-center space-x-2">
                 <div className="relative w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">

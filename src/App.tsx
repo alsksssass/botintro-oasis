@@ -21,6 +21,8 @@ import NotFound from "@/pages/NotFound";
 
 // Dashboard Pages
 import Dashboard from "@/pages/Dashboard";
+import Guilds from "@/pages/Guilds";
+import MessageFormat from "@/pages/MessageFormat";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,10 @@ const App = () => (
               {/* Dashboard Layout Routes */}
               <Route path="/dashboard" element={<DashboardLayout />}>
                 <Route index element={<Dashboard />} />
+                <Route path="commands" element={<Commands />} />
+                <Route path="themes" element={<Themes />} />
+                <Route path="guilds" element={<Guilds />} />
+                <Route path="guilds/:guildId/message-format" element={<MessageFormat />} />
                 {/* Add more dashboard routes here when needed */}
               </Route>
 

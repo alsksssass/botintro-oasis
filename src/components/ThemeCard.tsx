@@ -2,9 +2,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Theme } from '@/lib/types';
-import { Heart } from 'lucide-react';
+import { Heart, Hash } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface ThemeCardProps {
   theme: Theme;
@@ -46,9 +47,18 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, index }) => {
           {theme.title}
         </h3>
         
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+        <p className="text-sm text-muted-foreground line-clamp-2 mt-1 mb-3">
           {theme.description}
         </p>
+        
+        <div className="flex flex-wrap gap-1.5">
+          {theme.tags?.map(tag => (
+            <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
+              <Hash className="h-2.5 w-2.5 mr-1" />
+              {tag}
+            </Badge>
+          ))}
+        </div>
       </Link>
     </motion.div>
   );

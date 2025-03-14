@@ -16,6 +16,7 @@ export interface Command {
   usage: string;
   category: string;
   requiredPermissions: string[];
+  content?: string; // Markdown content
   createdBy: string;
   updatedBy: string;
   createdAt: string;
@@ -29,6 +30,28 @@ export interface Theme {
   description: string;
   recommendations: number;
   content: string;
+  tags?: string[]; // Added tags field
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Guild {
+  id: string;
+  name: string;
+  icon: string;
+  ownerId: string;
+  memberCount: number;
+  features: string[];
+}
+
+export interface MessageFormat {
+  id: string;
+  guildId: string;
+  formatType: 'welcome' | 'goodbye' | 'announcement' | 'custom';
+  content: string;
+  isEnabled: boolean;
   createdBy: string;
   updatedBy: string;
   createdAt: string;
