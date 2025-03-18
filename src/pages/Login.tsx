@@ -89,7 +89,7 @@ const Login: React.FC = () => {
     try {
       // Get Discord OAuth URL from our edge function
       const { data, error } = await supabase.functions.invoke('discord-oauth-url', {
-        body: { redirectTo: window.location.origin + '/login' }
+        body: {} // No need to pass redirectTo anymore as we're using the environment variable
       });
       
       if (error) {

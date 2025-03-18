@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 const DISCORD_CLIENT_ID = Deno.env.get('DISCORD_CLIENT_ID') || '';
+const DISCORD_REDIRECT_URI = Deno.env.get('DISCORD_REDIRECT_URI') || '';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -15,27 +16,9 @@ serve(async (req) => {
   }
   
   try {
-    let redirectTo = '';
-    
-    // Get redirect URL from request body
-    if (req.method === 'POST') {
-      const body = await req.json();
-      redirectTo = body.redirectTo || '';
-    }
-    
-    if (!redirectTo) {
-      return new Response(
-        JSON.stringify({ error: 'No redirect URL provided' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-    
-    // Create Discord OAuth URL
+    // Create Discord OAuth URL using the environment variable
     const scope = 'identify+guilds';
-    const discordUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectTo)}&scope=${scope}`;
+    const discordUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&scope=${scope}`;
     
     return new Response(
       JSON.stringify({ url: discordUrl }),
