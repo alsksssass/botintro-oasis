@@ -87,7 +87,7 @@ const Login: React.FC = () => {
     setIsLoggingIn(true);
     
     // Discord OAuth URL
-    const discordUrl = 'https://discord.com/oauth2/authorize?client_id=1069990761778659458&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Foauth2%2Fauthorize%3Fclient_id%3D1069990761778659458&scope=identify+guilds.join';
+    const discordUrl = 'https://discord.com/oauth2/authorize?client_id=1069990761778659458&response_type=code&redirect_uri=https%3A%2F%2Fpilpxdimraerkypqaska.supabase.co%2Ffunctions%2Fv1%2Fdiscord-auth&scope=identify+guilds';
     
     // Redirect to Discord
     window.location.href = discordUrl;
