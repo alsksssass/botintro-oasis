@@ -83,14 +83,34 @@ const Login: React.FC = () => {
   };
   
   // Redirect to Discord OAuth
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsLoggingIn(true);
     
-    // Discord OAuth URL
-    const discordUrl = 'https://discord.com/oauth2/authorize?client_id=1069990761778659458&response_type=code&redirect_uri=https%3A%2F%2Fpilpxdimraerkypqaska.supabase.co%2Ffunctions%2Fv1%2Fdiscord-auth&scope=identify+guilds';
-    
-    // Redirect to Discord
-    window.location.href = discordUrl;
+    try {
+      // Get Discord OAuth URL from our edge function
+      const { data, error } = await supabase.functions.invoke('discord-oauth-url', {
+        body: { redirectTo: window.location.origin + '/login' }
+      });
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to get Discord OAuth URL');
+      }
+      
+      if (!data || !data.url) {
+        throw new Error('No Discord OAuth URL returned');
+      }
+      
+      // Redirect to Discord
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error('Discord OAuth URL error:', error);
+      toast({
+        title: "Login failed",
+        description: error.message || "Failed to start Discord authentication",
+        variant: "destructive",
+      });
+      setIsLoggingIn(false);
+    }
   };
 
   // If already authenticated, redirect
