@@ -20,9 +20,22 @@ serve(async (req) => {
   }
 
   try {
-    const { code, error, error_description } = Object.fromEntries(
-      new URL(req.url).searchParams.entries()
-    );
+    // Get the request body and extract the code
+    let code, error, error_description;
+    
+    // Check if code is passed in request body
+    if (req.method === 'POST') {
+      const body = await req.json();
+      code = body.code;
+    } else {
+      // For backward compatibility, also check URL params
+      const params = Object.fromEntries(
+        new URL(req.url).searchParams.entries()
+      );
+      code = params.code;
+      error = params.error;
+      error_description = params.error_description;
+    }
 
     if (error) {
       console.error('Discord auth error:', error, error_description);

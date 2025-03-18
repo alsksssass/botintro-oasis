@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     try {
       // Call our Discord auth edge function
       const { data, error } = await supabase.functions.invoke('discord-auth', {
-        query: { code }
+        body: { code }
       });
       
       if (error) {
