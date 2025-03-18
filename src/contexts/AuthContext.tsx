@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/lib/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   hasRole: (role: UserRole) => boolean;
+  setUser: (user: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -20,6 +20,7 @@ export const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   isAuthenticated: false,
   hasRole: () => false,
+  setUser: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -27,17 +28,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Check for existing session on mount
   useEffect(() => {
     const checkUser = async () => {
       try {
         setIsLoading(true);
         
-        // Get current session
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          // Get user profile from database
           const { data: userProfile } = await supabase
             .from('users')
             .select('*')
@@ -61,17 +59,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     
-    // Check for initial session
     checkUser();
     
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setIsLoading(true);
         
         if (event === 'SIGNED_IN' && session?.user) {
           try {
-            // Get user profile
             const { data: userProfile } = await supabase
               .from('users')
               .select('*')
@@ -98,20 +93,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
     
-    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  // For development, we'll keep a mock login function
-  // In production this would use Supabase's Discord OAuth
   const login = async () => {
     try {
-      // This would be replaced with Discord OAuth through Supabase
-      // For now, just simulate a successful login with mock data
-      
-      // Create a test user in the users table
       const mockUser: User = {
         id: crypto.randomUUID(),
         discordId: '123456789012345678',
@@ -120,7 +108,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         role: 'admin',
       };
       
-      // Insert the mock user into the users table
       const { error } = await supabase
         .from('users')
         .insert({
@@ -152,8 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      // In production this would call Supabase's signOut method
-      // await supabase.auth.signOut();
+      await supabase.auth.signOut();
       setUser(null);
       toast({
         title: "Logged out",
@@ -172,13 +158,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const hasRole = (role: UserRole) => {
     if (!user) return false;
     
-    // Admin has access to everything
     if (user.role === 'admin') return true;
     
-    // Regular users can access regular features
     if (user.role === 'regular' && role === 'regular') return true;
     
-    // Otherwise user doesn't have the required role
     return false;
   };
 
@@ -191,6 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         isAuthenticated: !!user,
         hasRole,
+        setUser,
       }}
     >
       {children}

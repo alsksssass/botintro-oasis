@@ -1,44 +1,104 @@
 
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import PageTransition from '@/components/PageTransition';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login: React.FC = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { isAuthenticated, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   
   // Get the intended destination or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
   
+  // Check for Discord auth code
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      handleDiscordCallback(code);
+    }
+  }, [searchParams]);
+  
+  // Handle Discord OAuth callback
+  const handleDiscordCallback = async (code: string) => {
+    setIsLoggingIn(true);
+    
+    try {
+      // Call our Discord auth edge function
+      const { data, error } = await supabase.functions.invoke('discord-auth', {
+        query: { code }
+      });
+      
+      if (error) {
+        throw new Error(error.message || 'Authentication failed');
+      }
+
+      if (!data || !data.session) {
+        throw new Error('No session returned from authentication');
+      }
+
+      // Fetch user profile
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (userProfile) {
+        // Set user in auth context
+        setUser({
+          id: userProfile.id,
+          discordId: userProfile.discord_id,
+          displayName: userProfile.display_name,
+          avatar: userProfile.avatar,
+          role: userProfile.role as 'admin' | 'regular' | 'visitor'
+        });
+        
+        toast({
+          title: "Login successful",
+          description: "You are now signed in with Discord",
+        });
+        
+        // Redirect to intended destination
+        navigate(from, { replace: true });
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: error.message || "Authentication failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+  
+  // Redirect to Discord OAuth
+  const handleLogin = () => {
+    setIsLoggingIn(true);
+    
+    // Discord OAuth URL
+    const discordUrl = 'https://discord.com/oauth2/authorize?client_id=1069990761778659458&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Foauth2%2Fauthorize%3Fclient_id%3D1069990761778659458&scope=identify+guilds.join';
+    
+    // Redirect to Discord
+    window.location.href = discordUrl;
+  };
+
   // If already authenticated, redirect
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
-  
-  const handleLogin = async () => {
-    setIsLoggingIn(true);
-    
-    // This would be replaced with real Discord OAuth
-    // Simulate a network request
-    setTimeout(() => {
-      login();
-      toast({
-        title: "Login successful",
-        description: "You are now signed in with Discord",
-      });
-      navigate(from, { replace: true });
-      setIsLoggingIn(false);
-    }, 1500);
-  };
 
   return (
     <PageTransition>
