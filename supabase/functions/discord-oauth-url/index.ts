@@ -16,9 +16,16 @@ serve(async (req) => {
   }
   
   try {
+    // For debugging purposes, log the environment variables
+    console.log('DISCORD_CLIENT_ID:', DISCORD_CLIENT_ID);
+    console.log('DISCORD_REDIRECT_URI:', DISCORD_REDIRECT_URI);
+    
     // Create Discord OAuth URL using the environment variable
     const scope = 'identify+guilds';
     const discordUrl = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&scope=${scope}`;
+    
+    // Also log the final URL for debugging
+    console.log('Final Discord URL:', discordUrl);
     
     return new Response(
       JSON.stringify({ url: discordUrl }),
