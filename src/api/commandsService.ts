@@ -1,6 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { Command } from '@/lib/types';
+import { apiClient } from '@/lib/api';
 
 // Default commands data for fallback
 const defaultCommands: Command[] = [
@@ -47,30 +47,12 @@ const defaultCommands: Command[] = [
 export const commandsService = {
   getCommands: async (): Promise<Command[]> => {
     try {
-      const { data, error } = await supabase
-        .from('commands')
-        .select('*')
-        .order('name');
+      // Replace with actual API call
+      // const data = await apiClient.get<Command[]>('/commands');
+      // return data;
       
-      if (error) {
-        console.error('Error fetching commands:', error);
-        console.log('Returning default commands data');
-        return defaultCommands;
-      }
-      
-      return data.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        usage: item.usage,
-        category: item.category,
-        requiredPermissions: item.required_permissions,
-        content: item.content || undefined,
-        createdBy: item.created_by,
-        updatedBy: item.updated_by,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
-      }));
+      console.log('Using default commands data until Spring API is connected');
+      return defaultCommands;
     } catch (error) {
       console.error('Error in getCommands:', error);
       return defaultCommands;
@@ -79,32 +61,13 @@ export const commandsService = {
   
   getCommandById: async (id: string): Promise<Command | null> => {
     try {
-      const { data, error } = await supabase
-        .from('commands')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Replace with actual API call
+      // const data = await apiClient.get<Command>(`/commands/${id}`);
+      // return data;
       
-      if (error) {
-        console.error(`Error fetching command with id ${id}:`, error);
-        // Find default command with matching id
-        const defaultCommand = defaultCommands.find(cmd => cmd.id === id);
-        return defaultCommand || null;
-      }
-      
-      return {
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        usage: data.usage,
-        category: data.category,
-        requiredPermissions: data.required_permissions,
-        content: data.content || undefined,
-        createdBy: data.created_by,
-        updatedBy: data.updated_by,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      };
+      console.log(`Using default command data for id ${id} until Spring API is connected`);
+      const defaultCommand = defaultCommands.find(cmd => cmd.id === id);
+      return defaultCommand || null;
     } catch (error) {
       console.error(`Error in getCommandById:`, error);
       const defaultCommand = defaultCommands.find(cmd => cmd.id === id);

@@ -1,6 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/lib/types';
+import { apiClient } from '@/lib/api';
 
 // Default user data for fallback
 const defaultUser: User = {
@@ -14,77 +14,53 @@ const defaultUser: User = {
 export const authService = {
   getCurrentUser: async (): Promise<User | null> => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Replace with actual API call
+      // const data = await apiClient.get<User>('/auth/me');
+      // return data;
       
-      if (error) {
-        console.error('Error getting current session:', error);
-        console.log('Using default user for development');
-        return defaultUser;
-      }
-      
-      if (!session) {
-        console.log('No active session');
-        return null;
-      }
-      
-      // Get user profile from users table
-      const { data, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-        
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        console.log('Using default user for development');
-        return defaultUser;
-      }
-      
-      if (!data) {
-        console.log('User profile not found');
-        return null;
-      }
-      
-      return {
-        id: data.id,
-        discordId: data.discord_id,
-        displayName: data.display_name,
-        avatar: data.avatar,
-        role: data.role as 'admin' | 'regular' | 'visitor'
-      };
+      console.log('Using default user for development until Spring API is connected');
+      return defaultUser;
     } catch (error) {
       console.error('Error in getCurrentUser:', error);
-      return defaultUser;
+      return defaultUser; 
     }
   },
   
   getUserProfile: async (userId: string): Promise<User | null> => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Replace with actual API call
+      // const data = await apiClient.get<User>(`/users/${userId}`);
+      // return data;
       
-      if (error) {
-        console.error(`Error fetching user profile for ${userId}:`, error);
-        return defaultUser;
-      }
-      
-      if (!data) {
-        return null;
-      }
-      
-      return {
-        id: data.id,
-        discordId: data.discord_id,
-        displayName: data.display_name,
-        avatar: data.avatar,
-        role: data.role as 'admin' | 'regular' | 'visitor'
-      };
+      console.log(`Using default user profile for ${userId} until Spring API is connected`);
+      return defaultUser;
     } catch (error) {
       console.error(`Error in getUserProfile:`, error);
       return defaultUser;
+    }
+  },
+  
+  login: async (code: string): Promise<User | null> => {
+    try {
+      // Replace with actual API call
+      // const data = await apiClient.post<User>('/auth/login', { code });
+      // return data;
+      
+      console.log('Using default login flow until Spring API is connected');
+      return defaultUser;
+    } catch (error) {
+      console.error('Error in login:', error);
+      return null;
+    }
+  },
+  
+  logout: async (): Promise<void> => {
+    try {
+      // Replace with actual API call
+      // await apiClient.post('/auth/logout', {});
+      console.log('Logout called (not connected to Spring API yet)');
+    } catch (error) {
+      console.error('Error in logout:', error);
     }
   }
 };

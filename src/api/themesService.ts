@@ -1,6 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { Theme } from '@/lib/types';
+import { apiClient } from '@/lib/api';
 
 // Default themes data for fallback
 const defaultThemes: Theme[] = [
@@ -48,30 +48,12 @@ const defaultThemes: Theme[] = [
 export const themesService = {
   getThemes: async (): Promise<Theme[]> => {
     try {
-      const { data, error } = await supabase
-        .from('themes')
-        .select('*')
-        .order('title');
+      // Replace with actual API call
+      // const data = await apiClient.get<Theme[]>('/themes');
+      // return data;
       
-      if (error) {
-        console.error('Error fetching themes:', error);
-        console.log('Returning default themes data');
-        return defaultThemes;
-      }
-      
-      return data.map(item => ({
-        id: item.id,
-        title: item.title,
-        thumbnail: item.thumbnail,
-        description: item.description,
-        recommendations: item.recommendations,
-        content: item.content,
-        tags: item.tags || undefined,
-        createdBy: item.created_by,
-        updatedBy: item.updated_by,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
-      }));
+      console.log('Using default themes data until Spring API is connected');
+      return defaultThemes;
     } catch (error) {
       console.error('Error in getThemes:', error);
       return defaultThemes;
@@ -80,32 +62,13 @@ export const themesService = {
   
   getThemeById: async (id: string): Promise<Theme | null> => {
     try {
-      const { data, error } = await supabase
-        .from('themes')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Replace with actual API call
+      // const data = await apiClient.get<Theme>(`/themes/${id}`);
+      // return data;
       
-      if (error) {
-        console.error(`Error fetching theme with id ${id}:`, error);
-        // Find default theme with matching id
-        const defaultTheme = defaultThemes.find(theme => theme.id === id);
-        return defaultTheme || null;
-      }
-      
-      return {
-        id: data.id,
-        title: data.title,
-        thumbnail: data.thumbnail,
-        description: data.description,
-        recommendations: data.recommendations,
-        content: data.content,
-        tags: data.tags || undefined,
-        createdBy: data.created_by,
-        updatedBy: data.updated_by,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      };
+      console.log(`Using default theme data for id ${id} until Spring API is connected`);
+      const defaultTheme = defaultThemes.find(theme => theme.id === id);
+      return defaultTheme || null;
     } catch (error) {
       console.error(`Error in getThemeById:`, error);
       const defaultTheme = defaultThemes.find(theme => theme.id === id);

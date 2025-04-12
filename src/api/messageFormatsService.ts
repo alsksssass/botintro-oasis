@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
 import { MessageFormat } from '@/lib/types';
+import { apiClient } from '@/lib/api';
 
 // Default message formats data for fallback
 const defaultMessageFormats: MessageFormat[] = [
@@ -31,28 +30,12 @@ const defaultMessageFormats: MessageFormat[] = [
 export const messageFormatsService = {
   getMessageFormats: async (guildId: string): Promise<MessageFormat[]> => {
     try {
-      const { data, error } = await supabase
-        .from('message_formats')
-        .select('*')
-        .eq('guild_id', guildId);
+      // Replace with actual API call
+      // const data = await apiClient.get<MessageFormat[]>(`/guilds/${guildId}/message-formats`);
+      // return data;
       
-      if (error) {
-        console.error(`Error fetching message formats for guild ${guildId}:`, error);
-        console.log('Returning default message formats data');
-        return defaultMessageFormats;
-      }
-      
-      return data.map(item => ({
-        id: item.id,
-        guildId: item.guild_id,
-        formatType: item.format_type as 'welcome' | 'goodbye' | 'announcement' | 'custom',
-        content: item.content,
-        isEnabled: item.is_enabled,
-        createdBy: item.created_by,
-        updatedBy: item.updated_by,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
-      }));
+      console.log(`Using default message formats data for guild ${guildId} until Spring API is connected`);
+      return defaultMessageFormats;
     } catch (error) {
       console.error(`Error in getMessageFormats:`, error);
       return defaultMessageFormats;
