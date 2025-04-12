@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import PageTransition from '@/components/PageTransition';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/api/authService';
 
 const Login: React.FC = () => {
   const { isAuthenticated, setUser } = useAuth();
@@ -34,47 +34,23 @@ const Login: React.FC = () => {
     try {
       console.log('Received code from Discord:', code);
       
-      // Call our Discord auth edge function
-      const { data, error } = await supabase.functions.invoke('discord-auth', {
-        body: { code }
+      // Call our auth service with the code
+      const user = await authService.login(code);
+      
+      if (!user) {
+        throw new Error('No user returned from authentication');
+      }
+
+      // Set user in auth context
+      setUser(user);
+      
+      toast({
+        title: "Login successful",
+        description: "You are now signed in with Discord",
       });
       
-      if (error) {
-        console.error('Discord auth function error:', error);
-        throw new Error(error.message || 'Authentication failed');
-      }
-
-      console.log('Auth function response:', data);
-      
-      if (!data || !data.session) {
-        throw new Error('No session returned from authentication');
-      }
-
-      // Fetch user profile
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
-      
-      if (userProfile) {
-        // Set user in auth context
-        setUser({
-          id: userProfile.id,
-          discordId: userProfile.discord_id,
-          displayName: userProfile.display_name,
-          avatar: userProfile.avatar,
-          role: userProfile.role as 'admin' | 'regular' | 'visitor'
-        });
-        
-        toast({
-          title: "Login successful",
-          description: "You are now signed in with Discord",
-        });
-        
-        // Redirect to intended destination
-        navigate(from, { replace: true });
-      }
+      // Redirect to intended destination
+      navigate(from, { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -92,33 +68,31 @@ const Login: React.FC = () => {
     setIsLoggingIn(true);
     
     try {
-      console.log('Getting Discord OAuth URL...');
+      // In a real implementation, we would redirect to Discord's OAuth page
+      // Here we're just using the mock login flow
+      const user = await authService.login("mock_discord_code");
       
-      // Get Discord OAuth URL from our edge function
-      const { data, error } = await supabase.functions.invoke('discord-oauth-url', {
-        body: {} // No need to pass redirectTo anymore as we're using the environment variable
+      if (!user) {
+        throw new Error('Login failed');
+      }
+      
+      setUser(user);
+      
+      toast({
+        title: "Login successful",
+        description: "You are now signed in with Discord",
       });
       
-      if (error) {
-        console.error('Discord OAuth URL error:', error);
-        throw new Error(error.message || 'Failed to get Discord OAuth URL');
-      }
-      
-      console.log('Received Discord OAuth URL:', data);
-      
-      if (!data || !data.url) {
-        throw new Error('No Discord OAuth URL returned');
-      }
-      
-      // Redirect to Discord
-      window.location.href = data.url;
+      // Redirect to intended destination
+      navigate(from, { replace: true });
     } catch (error: any) {
-      console.error('Discord OAuth URL error:', error);
+      console.error('Login error:', error);
       toast({
         title: "Login failed",
         description: error.message || "Failed to start Discord authentication",
         variant: "destructive",
       });
+    } finally {
       setIsLoggingIn(false);
     }
   };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -12,8 +13,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/use-toast';
-import { messageFormatsService } from '@/lib/supabase';
-import { supabase } from '@/integrations/supabase/client';
+import { messageFormatsService } from '@/api/messageFormatsService';
+import { apiClient } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface MessageFormatFormValues {

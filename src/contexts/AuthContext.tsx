@@ -1,7 +1,8 @@
+
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/lib/types';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { authService } from '@/api/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -32,26 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkUser = async () => {
       try {
         setIsLoading(true);
-        
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          const { data: userProfile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (userProfile) {
-            setUser({
-              id: userProfile.id,
-              discordId: userProfile.discord_id,
-              displayName: userProfile.display_name,
-              avatar: userProfile.avatar,
-              role: userProfile.role as UserRole,
-            });
-          }
-        }
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
       } catch (error) {
         console.error('Error checking authentication:', error);
       } finally {
@@ -60,73 +43,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     
     checkUser();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setIsLoading(true);
-        
-        if (event === 'SIGNED_IN' && session?.user) {
-          try {
-            const { data: userProfile } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (userProfile) {
-              setUser({
-                id: userProfile.id,
-                discordId: userProfile.discord_id,
-                displayName: userProfile.display_name,
-                avatar: userProfile.avatar,
-                role: userProfile.role as UserRole,
-              });
-            }
-          } catch (error) {
-            console.error('Error getting user profile:', error);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-    
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const login = async () => {
     try {
-      const mockUser: User = {
-        id: crypto.randomUUID(),
-        discordId: '123456789012345678',
-        displayName: 'Demo User',
-        avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
-        role: 'admin',
-      };
+      // Simulate login with a code
+      const mockCode = "mock_discord_code";
+      const loggedInUser = await authService.login(mockCode);
       
-      const { error } = await supabase
-        .from('users')
-        .insert({
-          id: mockUser.id,
-          discord_id: mockUser.discordId,
-          display_name: mockUser.displayName,
-          avatar: mockUser.avatar,
-          role: mockUser.role,
+      if (loggedInUser) {
+        setUser(loggedInUser);
+        toast({
+          title: "Login successful",
+          description: "You are now signed in with Discord",
         });
-        
-      if (error) {
-        throw error;
+      } else {
+        throw new Error("Login failed");
       }
-      
-      setUser(mockUser);
-      toast({
-        title: "Login successful",
-        description: "You are now signed in with Discord",
-      });
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -139,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      await authService.logout();
       setUser(null);
       toast({
         title: "Logged out",
