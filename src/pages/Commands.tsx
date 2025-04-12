@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import CommandList from '@/components/CommandList';
 import PageTransition from '@/components/PageTransition';
-import { commandsService } from '@/lib/supabase';
+import { commandsService } from '@/api/commandsService';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 

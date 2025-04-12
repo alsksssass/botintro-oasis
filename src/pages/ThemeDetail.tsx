@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import PageTransition from '@/components/PageTransition';
 import { Button } from '@/components/ui/button';
-import { Heart, ChevronLeft, Share2, Loader } from 'lucide-react';
+import { Heart, ChevronLeft, Share2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { themesService } from '@/lib/supabase';
+import { themesService } from '@/api/themesService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ThemeDetail: React.FC = () => {

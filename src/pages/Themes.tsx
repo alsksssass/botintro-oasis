@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import PageTransition from '@/components/PageTransition';
@@ -6,7 +5,7 @@ import ThemeCard from '@/components/ThemeCard';
 import { Input } from '@/components/ui/input';
 import { Search, Hash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { themesService } from '@/lib/supabase';
+import { themesService } from '@/api/themesService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Themes: React.FC = () => {
