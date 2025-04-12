@@ -35,7 +35,7 @@ This application uses a Java Spring Backend API with the following data models:
   discord_id: string       // Discord user ID
   display_name: string     // User's display name
   avatar: string           // URL to user's avatar
-  role: string             // User role (admin, regular, visitor)
+  role: string             // User role (admin, super, regular, visitor)
   created_at: timestamp    // When the user was created
   updated_at: timestamp    // When the user was last updated
 }
@@ -68,6 +68,7 @@ This application uses a Java Spring Backend API with the following data models:
   recommendations: number  // Number of recommendations/likes
   content: string          // Theme content/details in HTML format
   tags: string[]           // Theme tags
+  password: string         // Password for editing/deleting the theme
   created_by: string       // User ID who created this theme
   updated_by: string       // User ID who last updated this theme
   created_at: timestamp    // When the theme was created
@@ -99,20 +100,21 @@ The application uses the following API endpoints:
 - `GET /users/:userId` - Get user profile
 - `POST /auth/login` - Login with Discord
 - `POST /auth/logout` - Logout
+- `GET /auth/guilds` - Get user's Discord guilds
 
 ### Commands
 - `GET /commands` - Get all commands
 - `GET /commands/:id` - Get command by ID
-- `POST /commands` - Create new command
-- `PUT /commands/:id` - Update command
-- `DELETE /commands/:id` - Delete command
+- `POST /commands` - Create new command (admin/super only)
+- `PUT /commands/:id` - Update command (admin/super only)
+- `DELETE /commands/:id` - Delete command (admin/super only)
 
 ### Themes
 - `GET /themes` - Get all themes
 - `GET /themes/:id` - Get theme by ID
-- `POST /themes` - Create new theme
-- `PUT /themes/:id` - Update theme
-- `DELETE /themes/:id` - Delete theme
+- `POST /themes` - Create new theme (any authenticated user)
+- `PUT /themes/:id` - Update theme (by password or admin/super)
+- `DELETE /themes/:id` - Delete theme (by password or admin/super)
 
 ### Message Formats
 - `GET /guilds/:guildId/message-formats` - Get all message formats for a guild
@@ -120,6 +122,30 @@ The application uses the following API endpoints:
 - `POST /guilds/:guildId/message-formats` - Create new message format
 - `PUT /guilds/:guildId/message-formats/:id` - Update message format
 - `DELETE /guilds/:guildId/message-formats/:id` - Delete message format
+
+## User Roles and Permissions
+
+The application supports the following user roles:
+
+1. **Admin**
+   - Full access to all features
+   - Can create, edit, and delete all content
+   - Can access all administration pages
+
+2. **Super User**
+   - Can create, edit, and delete commands
+   - Can edit and delete themes (no password required)
+   - Cannot access user management
+
+3. **Regular User**
+   - Can view all content
+   - Can create themes with password protection
+   - Can edit/delete own themes with password
+   - Cannot create, edit, or delete commands
+
+4. **Visitor**
+   - Can view all public content
+   - Cannot create, edit, or delete any content
 
 ## How can I edit this code?
 
@@ -184,3 +210,4 @@ Simply open [Lovable](https://lovable.dev/projects/32c06fd0-e17a-4bdf-b85f-d5269
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+

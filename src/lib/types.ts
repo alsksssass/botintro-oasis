@@ -1,5 +1,5 @@
 
-export type UserRole = 'admin' | 'regular' | 'visitor';
+export type UserRole = 'admin' | 'super' | 'regular' | 'visitor';
 
 export interface User {
   id: string;
@@ -31,6 +31,7 @@ export interface Theme {
   recommendations: number;
   content: string;
   tags?: string[]; // Added tags field
+  password?: string; // Password for editing/deleting
   createdBy: string;
   updatedBy: string;
   createdAt: string;

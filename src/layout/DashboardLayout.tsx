@@ -2,7 +2,6 @@
 import React from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   LayoutDashboard, 
@@ -29,45 +28,43 @@ const DashboardLayout: React.FC = () => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // Check if user has admin role for admin-only sections
-  const canAccessAdminSection = hasRole('admin');
-
+  // Different navigation items for different user roles
   const navItems = [
     { 
       name: 'Overview', 
       path: '/dashboard', 
       icon: LayoutDashboard, 
-      adminOnly: false 
+      roles: ['admin', 'super'], // Only admin and super users see Overview
     },
     { 
       name: 'Commands', 
       path: '/dashboard/commands', 
       icon: Command, 
-      adminOnly: false 
+      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Commands
     },
     { 
       name: 'Themes', 
       path: '/dashboard/themes', 
       icon: Hash, 
-      adminOnly: false 
+      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Themes
     },
     { 
       name: 'Guilds', 
       path: '/dashboard/guilds', 
       icon: Server, 
-      adminOnly: false 
+      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Guilds
     },
     { 
       name: 'User Management', 
       path: '/dashboard/users', 
       icon: Users, 
-      adminOnly: true 
+      roles: ['admin'], // Only admin can see User Management
     },
     { 
       name: 'Settings', 
       path: '/dashboard/settings', 
       icon: Settings, 
-      adminOnly: false 
+      roles: ['admin', 'super'], // Only admin and super users can see Settings
     },
   ];
 
@@ -77,6 +74,11 @@ const DashboardLayout: React.FC = () => {
     }
     return location.pathname.startsWith(path);
   };
+
+  // Filter navigation items based on user role
+  const filteredNavItems = navItems.filter(item => {
+    return item.roles.includes(user?.role || 'visitor');
+  });
 
   return (
     <div className="min-h-screen bg-muted/30 dark:bg-background">
@@ -106,21 +108,19 @@ const DashboardLayout: React.FC = () => {
                     </div>
                     
                     <nav className="grid gap-1">
-                      {navItems
-                        .filter(item => !item.adminOnly || canAccessAdminSection)
-                        .map((item) => (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`group flex items-center gap-x-3 rounded-md px-3 py-2 transition-colors
-                              ${isActive(item.path)
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                              }`}
-                          >
-                            <item.icon className="h-4 w-4" />
-                            <span className="text-sm font-medium">{item.name}</span>
-                          </Link>
+                      {filteredNavItems.map((item) => (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={`group flex items-center gap-x-3 rounded-md px-3 py-2 transition-colors
+                            ${isActive(item.path)
+                              ? 'bg-primary/10 text-primary'
+                              : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                            }`}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="text-sm font-medium">{item.name}</span>
+                        </Link>
                       ))}
                     </nav>
                   </div>

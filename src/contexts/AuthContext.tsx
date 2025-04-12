@@ -7,10 +7,10 @@ import { authService } from '@/api/authService';
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: () => Promise<void>;
+  login: (username?: string, password?: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
-  hasRole: (role: UserRole) => boolean;
+  hasRole: (role: UserRole | UserRole[]) => boolean;
   setUser: (user: User) => void;
 }
 
@@ -45,17 +45,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
-  const login = async () => {
+  const login = async (username?: string, password?: string) => {
     try {
-      // Simulate login with a code
-      const mockCode = "mock_discord_code";
-      const loggedInUser = await authService.login(mockCode);
+      // For demo purposes, we'll use these credentials to simulate different roles
+      let role: UserRole = 'visitor';
+      let mockCode = "mock_discord_code";
+
+      if (username === 'admin' && password === 'admin') {
+        role = 'admin';
+        mockCode = "admin_code";
+      } else if (username === 'superuser' && password === 'superuser') {
+        role = 'super';
+        mockCode = "super_code";
+      } else if (username === 'user' && password === 'user') {
+        role = 'regular';
+        mockCode = "regular_code";
+      }
+
+      const loggedInUser = await authService.login(mockCode, role);
       
       if (loggedInUser) {
         setUser(loggedInUser);
         toast({
           title: "Login successful",
-          description: "You are now signed in with Discord",
+          description: `You are now signed in as ${loggedInUser.role}`,
         });
       } else {
         throw new Error("Login failed");
@@ -88,14 +101,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const hasRole = (role: UserRole) => {
+  const hasRole = (role: UserRole | UserRole[]) => {
     if (!user) return false;
     
+    // Admin has access to everything
     if (user.role === 'admin') return true;
     
-    if (user.role === 'regular' && role === 'regular') return true;
+    // Super users have access to everything except admin-only features
+    if (user.role === 'super' && Array.isArray(role) && !role.includes('admin')) {
+      return true;
+    }
     
-    return false;
+    if (user.role === 'super' && role !== 'admin') {
+      return true;
+    }
+    
+    // Check if the user's role matches the required role(s)
+    if (Array.isArray(role)) {
+      return role.includes(user.role);
+    }
+    
+    return user.role === role;
   };
 
   return (

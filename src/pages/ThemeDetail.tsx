@@ -1,18 +1,37 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PageTransition from '@/components/PageTransition';
 import { Button } from '@/components/ui/button';
-import { Heart, ChevronLeft, Share2 } from 'lucide-react';
+import { Heart, ChevronLeft, Share2, Edit, Trash } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { themesService } from '@/api/themesService';
 import { Skeleton } from '@/components/ui/skeleton';
+import ThemePasswordDialog from '@/components/ThemePasswordDialog';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const ThemeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated, hasRole } = useAuth();
-  const [liked, setLiked] = React.useState(false);
+  const { user, hasRole } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  const [liked, setLiked] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [passwordAction, setPasswordAction] = useState<'edit' | 'delete'>('edit');
   
   // Fetch theme data
   const { data: theme, isLoading, error } = useQuery({
@@ -21,11 +40,82 @@ const ThemeDetail: React.FC = () => {
     enabled: !!id,
   });
   
-  const canEdit = isAuthenticated && hasRole('admin');
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (password: string) => {
+      if (!id) throw new Error('No ID provided');
+      return themesService.deleteTheme(id, password);
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Theme deleted',
+        description: 'The theme has been successfully deleted.',
+      });
+      navigate('/themes');
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete theme',
+        variant: 'destructive',
+      });
+    }
+  });
+  
+  // Check if user can edit this theme
+  const canAdminEdit = hasRole(['admin', 'super']);
+  
+  const handleEdit = () => {
+    if (!theme) return;
+    
+    // For admin users, no password required
+    if (canAdminEdit) {
+      navigate(`/dashboard/themes/${theme.id}/edit`);
+      return;
+    }
+    
+    // For regular users, password required
+    setPasswordAction('edit');
+    setIsPasswordDialogOpen(true);
+  };
+  
+  const handleDelete = () => {
+    if (!theme) return;
+    
+    // For admin users, confirm but no password required
+    if (canAdminEdit) {
+      setIsDeleteDialogOpen(true);
+      return;
+    }
+    
+    // For regular users, password required
+    setPasswordAction('delete');
+    setIsPasswordDialogOpen(true);
+  };
   
   const toggleLike = () => {
     setLiked(prev => !prev);
-    // In a real app, this would update the count in Supabase
+    // In a real app, this would update the count in the database
+  };
+  
+  const handlePasswordSuccess = () => {
+    if (passwordAction === 'edit' && theme) {
+      navigate(`/dashboard/themes/${theme.id}/edit`);
+    } else if (passwordAction === 'delete') {
+      setIsDeleteDialogOpen(true);
+    }
+  };
+  
+  const confirmDelete = async () => {
+    if (!theme || !id) return;
+    
+    // For admin users, no password needed
+    if (canAdminEdit) {
+      deleteMutation.mutate('');
+    } else {
+      // For regular users who already entered password
+      deleteMutation.mutate(theme.password || '');
+    }
   };
   
   if (isLoading) {
@@ -132,12 +222,28 @@ const ThemeDetail: React.FC = () => {
                   Share
                 </Button>
                 
-                {canEdit && (
-                  <Link to={`/dashboard/themes/${theme.id}/edit`}>
-                    <Button variant="default" size="sm">
-                      Edit Theme
+                {user && (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="group"
+                      onClick={handleEdit}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
                     </Button>
-                  </Link>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="group text-destructive hover:bg-destructive/10"
+                      onClick={handleDelete}
+                    >
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -153,6 +259,41 @@ const ThemeDetail: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Password Dialog */}
+      <ThemePasswordDialog
+        isOpen={isPasswordDialogOpen}
+        setIsOpen={setIsPasswordDialogOpen}
+        title={passwordAction === 'edit' ? "Edit Theme" : "Delete Theme"}
+        description={passwordAction === 'edit' 
+          ? "Enter the theme password to edit this content." 
+          : "Enter the theme password to delete this content."
+        }
+        correctPassword={theme.password || ''}
+        onSuccess={handlePasswordSuccess}
+      />
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              theme and remove it from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageTransition>
   );
 };
