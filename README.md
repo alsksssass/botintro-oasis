@@ -24,6 +24,103 @@ VITE_ENABLE_ANALYTICS=false
 VITE_ENABLE_PREMIUM_FEATURES=false
 ```
 
+## Database Structure
+
+This application uses a Java Spring Backend API with the following data models:
+
+### Users
+```
+{
+  id: string               // Primary key
+  discord_id: string       // Discord user ID
+  display_name: string     // User's display name
+  avatar: string           // URL to user's avatar
+  role: string             // User role (admin, regular, visitor)
+  created_at: timestamp    // When the user was created
+  updated_at: timestamp    // When the user was last updated
+}
+```
+
+### Commands
+```
+{
+  id: string               // Primary key
+  name: string             // Command name
+  description: string      // Command description
+  usage: string            // Command usage example
+  category: string         // Command category
+  required_permissions: string[]  // Required Discord permissions
+  content: string          // Markdown content with detailed information
+  created_by: string       // User ID who created this command
+  updated_by: string       // User ID who last updated this command
+  created_at: timestamp    // When the command was created
+  updated_at: timestamp    // When the command was last updated
+}
+```
+
+### Themes
+```
+{
+  id: string               // Primary key
+  title: string            // Theme title
+  thumbnail: string        // URL to theme thumbnail
+  description: string      // Theme description
+  recommendations: number  // Number of recommendations/likes
+  content: string          // Theme content/details in HTML format
+  tags: string[]           // Theme tags
+  created_by: string       // User ID who created this theme
+  updated_by: string       // User ID who last updated this theme
+  created_at: timestamp    // When the theme was created
+  updated_at: timestamp    // When the theme was last updated
+}
+```
+
+### Message Formats
+```
+{
+  id: string               // Primary key
+  guild_id: string         // Discord guild (server) ID
+  format_type: string      // Type of message format (welcome, goodbye, etc)
+  content: string          // Message content in markdown format
+  is_enabled: boolean      // Whether this format is enabled
+  created_by: string       // User ID who created this format
+  updated_by: string       // User ID who last updated this format
+  created_at: timestamp    // When the format was created
+  updated_at: timestamp    // When the format was last updated
+}
+```
+
+## API Endpoints
+
+The application uses the following API endpoints:
+
+### Auth
+- `GET /auth/me` - Get current user
+- `GET /users/:userId` - Get user profile
+- `POST /auth/login` - Login with Discord
+- `POST /auth/logout` - Logout
+
+### Commands
+- `GET /commands` - Get all commands
+- `GET /commands/:id` - Get command by ID
+- `POST /commands` - Create new command
+- `PUT /commands/:id` - Update command
+- `DELETE /commands/:id` - Delete command
+
+### Themes
+- `GET /themes` - Get all themes
+- `GET /themes/:id` - Get theme by ID
+- `POST /themes` - Create new theme
+- `PUT /themes/:id` - Update theme
+- `DELETE /themes/:id` - Delete theme
+
+### Message Formats
+- `GET /guilds/:guildId/message-formats` - Get all message formats for a guild
+- `GET /guilds/:guildId/message-formats/:id` - Get message format by ID
+- `POST /guilds/:guildId/message-formats` - Create new message format
+- `PUT /guilds/:guildId/message-formats/:id` - Update message format
+- `DELETE /guilds/:guildId/message-formats/:id` - Delete message format
+
 ## How can I edit this code?
 
 There are several ways of editing your application.

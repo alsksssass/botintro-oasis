@@ -14,12 +14,7 @@ const defaultUser: User = {
 export const authService = {
   getCurrentUser: async (): Promise<User | null> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<User>('/auth/me');
-      // return data;
-      
-      console.log('Using default user for development until Spring API is connected');
-      return defaultUser;
+      return await apiClient.get<User>('/auth/me');
     } catch (error) {
       console.error('Error in getCurrentUser:', error);
       return defaultUser; 
@@ -28,12 +23,7 @@ export const authService = {
   
   getUserProfile: async (userId: string): Promise<User | null> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<User>(`/users/${userId}`);
-      // return data;
-      
-      console.log(`Using default user profile for ${userId} until Spring API is connected`);
-      return defaultUser;
+      return await apiClient.get<User>(`/users/${userId}`);
     } catch (error) {
       console.error(`Error in getUserProfile:`, error);
       return defaultUser;
@@ -42,12 +32,7 @@ export const authService = {
   
   login: async (code: string): Promise<User | null> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.post<User>('/auth/login', { code });
-      // return data;
-      
-      console.log('Using default login flow until Spring API is connected');
-      return defaultUser;
+      return await apiClient.post<User>('/auth/login', { code });
     } catch (error) {
       console.error('Error in login:', error);
       return null;
@@ -56,11 +41,18 @@ export const authService = {
   
   logout: async (): Promise<void> => {
     try {
-      // Replace with actual API call
-      // await apiClient.post('/auth/logout', {});
-      console.log('Logout called (not connected to Spring API yet)');
+      await apiClient.post<void>('/auth/logout', {});
     } catch (error) {
       console.error('Error in logout:', error);
+    }
+  },
+  
+  getUserGuilds: async (): Promise<any[]> => {
+    try {
+      return await apiClient.get<any[]>('/auth/guilds');
+    } catch (error) {
+      console.error('Error in getUserGuilds:', error);
+      return [];
     }
   }
 };

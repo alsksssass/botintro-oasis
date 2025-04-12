@@ -47,12 +47,7 @@ const defaultCommands: Command[] = [
 export const commandsService = {
   getCommands: async (): Promise<Command[]> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<Command[]>('/commands');
-      // return data;
-      
-      console.log('Using default commands data until Spring API is connected');
-      return defaultCommands;
+      return await apiClient.get<Command[]>('/commands');
     } catch (error) {
       console.error('Error in getCommands:', error);
       return defaultCommands;
@@ -61,17 +56,38 @@ export const commandsService = {
   
   getCommandById: async (id: string): Promise<Command | null> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<Command>(`/commands/${id}`);
-      // return data;
-      
-      console.log(`Using default command data for id ${id} until Spring API is connected`);
-      const defaultCommand = defaultCommands.find(cmd => cmd.id === id);
-      return defaultCommand || null;
+      return await apiClient.get<Command>(`/commands/${id}`);
     } catch (error) {
       console.error(`Error in getCommandById:`, error);
       const defaultCommand = defaultCommands.find(cmd => cmd.id === id);
       return defaultCommand || null;
+    }
+  },
+  
+  createCommand: async (data: Omit<Command, 'id' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>): Promise<Command> => {
+    try {
+      return await apiClient.post<Command>('/commands', data);
+    } catch (error) {
+      console.error(`Error in createCommand:`, error);
+      throw error;
+    }
+  },
+  
+  updateCommand: async (id: string, data: Partial<Command>): Promise<Command> => {
+    try {
+      return await apiClient.put<Command>(`/commands/${id}`, data);
+    } catch (error) {
+      console.error(`Error in updateCommand:`, error);
+      throw error;
+    }
+  },
+  
+  deleteCommand: async (id: string): Promise<void> => {
+    try {
+      await apiClient.delete<void>(`/commands/${id}`);
+    } catch (error) {
+      console.error(`Error in deleteCommand:`, error);
+      throw error;
     }
   }
 };

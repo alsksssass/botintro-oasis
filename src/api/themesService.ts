@@ -48,12 +48,7 @@ const defaultThemes: Theme[] = [
 export const themesService = {
   getThemes: async (): Promise<Theme[]> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<Theme[]>('/themes');
-      // return data;
-      
-      console.log('Using default themes data until Spring API is connected');
-      return defaultThemes;
+      return await apiClient.get<Theme[]>('/themes');
     } catch (error) {
       console.error('Error in getThemes:', error);
       return defaultThemes;
@@ -62,17 +57,38 @@ export const themesService = {
   
   getThemeById: async (id: string): Promise<Theme | null> => {
     try {
-      // Replace with actual API call
-      // const data = await apiClient.get<Theme>(`/themes/${id}`);
-      // return data;
-      
-      console.log(`Using default theme data for id ${id} until Spring API is connected`);
-      const defaultTheme = defaultThemes.find(theme => theme.id === id);
-      return defaultTheme || null;
+      return await apiClient.get<Theme>(`/themes/${id}`);
     } catch (error) {
       console.error(`Error in getThemeById:`, error);
       const defaultTheme = defaultThemes.find(theme => theme.id === id);
       return defaultTheme || null;
+    }
+  },
+  
+  createTheme: async (data: Omit<Theme, 'id' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>): Promise<Theme> => {
+    try {
+      return await apiClient.post<Theme>('/themes', data);
+    } catch (error) {
+      console.error(`Error in createTheme:`, error);
+      throw error;
+    }
+  },
+  
+  updateTheme: async (id: string, data: Partial<Theme>): Promise<Theme> => {
+    try {
+      return await apiClient.put<Theme>(`/themes/${id}`, data);
+    } catch (error) {
+      console.error(`Error in updateTheme:`, error);
+      throw error;
+    }
+  },
+  
+  deleteTheme: async (id: string): Promise<void> => {
+    try {
+      await apiClient.delete<void>(`/themes/${id}`);
+    } catch (error) {
+      console.error(`Error in deleteTheme:`, error);
+      throw error;
     }
   }
 };

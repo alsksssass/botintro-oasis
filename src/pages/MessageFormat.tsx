@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -13,7 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/use-toast';
-import { messageFormatsService } from '@/api/messageFormatsService';
+import { messageFormatsService } from '@/api';
 import { apiClient } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -54,24 +53,22 @@ const MessageFormat: React.FC = () => {
       
       if (messageFormats?.[0]) {
         // Update existing message format
-        const response = await apiClient.put(`/api/guilds/${guildId}/message-formats/${messageFormats[0].id}`, {
+        const response = await apiClient.put<any>(`/guilds/${guildId}/message-formats/${messageFormats[0].id}`, {
           formatType: values.formatType,
           content: values.content,
           isEnabled: values.isEnabled,
         });
         
-        if (!response.ok) throw new Error("Failed to update message format");
         return 'updated';
       } 
       
       // Create new message format
-      const response = await apiClient.post(`/api/guilds/${guildId}/message-formats`, {
+      const response = await apiClient.post<any>(`/guilds/${guildId}/message-formats`, {
         formatType: values.formatType,
         content: values.content,
         isEnabled: values.isEnabled,
       });
       
-      if (!response.ok) throw new Error("Failed to create message format");
       return 'created';
     },
     onSuccess: (result) => {
