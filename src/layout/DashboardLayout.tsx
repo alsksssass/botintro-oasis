@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -7,13 +7,12 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   LayoutDashboard, 
   Command, 
-  Gamepad2, 
+  Hash, 
   Users, 
   Settings, 
   LogOut, 
   ChevronLeft,
   ChevronRight,
-  Hash,
   Server
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -161,9 +160,8 @@ const DashboardLayout: React.FC = () => {
             </SidebarContent>
             
             <div className="mt-auto h-12 border-t flex items-center px-4">
-              <SidebarTrigger asChild>
+              <SidebarTrigger>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-70">
-                  <span className="sr-only">Toggle Sidebar</span>
                   <ChevronLeft className="h-4 w-4 sidebar-expanded:hidden" />
                   <ChevronRight className="h-4 w-4 hidden sidebar-expanded:block" />
                 </Button>

@@ -1,8 +1,28 @@
+
 # Welcome to your Lovable project
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/32c06fd0-e17a-4bdf-b85f-d526954137a9
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8080/api/v1
+VITE_API_TIMEOUT=30000
+
+# Authentication
+VITE_AUTH_CLIENT_ID=your-discord-client-id
+VITE_AUTH_REDIRECT_URI=http://localhost:3000/login
+VITE_AUTH_SCOPE=identify email guilds
+
+# Feature Flags
+VITE_ENABLE_ANALYTICS=false
+VITE_ENABLE_PREMIUM_FEATURES=false
+```
 
 ## How can I edit this code?
 
@@ -52,7 +72,7 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript

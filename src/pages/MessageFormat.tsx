@@ -53,32 +53,25 @@ const MessageFormat: React.FC = () => {
       if (!guildId) throw new Error("No guild ID provided");
       
       if (messageFormats?.[0]) {
-        const { error } = await supabase
-          .from('message_formats')
-          .update({
-            format_type: values.formatType,
-            content: values.content,
-            is_enabled: values.isEnabled,
-            updated_by: 'system',
-          })
-          .eq('id', messageFormats[0].id);
-          
-        if (error) throw error;
+        // Update existing message format
+        const response = await apiClient.put(`/api/guilds/${guildId}/message-formats/${messageFormats[0].id}`, {
+          formatType: values.formatType,
+          content: values.content,
+          isEnabled: values.isEnabled,
+        });
+        
+        if (!response.ok) throw new Error("Failed to update message format");
         return 'updated';
       } 
       
-      const { error } = await supabase
-        .from('message_formats')
-        .insert({
-          guild_id: guildId,
-          format_type: values.formatType,
-          content: values.content,
-          is_enabled: values.isEnabled,
-          created_by: 'system',
-          updated_by: 'system',
-        });
-        
-      if (error) throw error;
+      // Create new message format
+      const response = await apiClient.post(`/api/guilds/${guildId}/message-formats`, {
+        formatType: values.formatType,
+        content: values.content,
+        isEnabled: values.isEnabled,
+      });
+      
+      if (!response.ok) throw new Error("Failed to create message format");
       return 'created';
     },
     onSuccess: (result) => {
