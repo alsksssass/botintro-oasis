@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { FaDiscord } from 'react-icons/fa';
 
 const Login: React.FC = () => {
   const { isAuthenticated, login } = useAuth();
@@ -18,7 +19,9 @@ const Login: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+
+  const redirectUri = import.meta.env.VITE_AUTH_REDIRECT_URI;
+
   // Get the intended destination or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
   
@@ -105,6 +108,19 @@ const Login: React.FC = () => {
                 )}
               </Button>
             </form>
+            <div className="mt-4">
+            <Button
+                type="button"
+                variant="secondary"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => {
+                    window.location.href = redirectUri;
+                }}
+                >
+                <FaDiscord className="h-4 w-4" />
+                Login with Discord
+                </Button>
+            </div>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-xs text-center text-muted-foreground">
