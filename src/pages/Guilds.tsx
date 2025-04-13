@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -21,23 +20,26 @@ const Guilds: React.FC = () => {
     queryFn: authService.getUserGuilds,
   });
   
-  // Filter guilds based on search query
+  // 검색어 기준으로 길드 필터링
   const filteredGuilds = guilds?.filter(guild => 
     guild.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSettingsClick = (guildId: string) => {
-    navigate(`/dashboard/guilds/${guildId}/message-format`);
+  const handleSettingsClick = (guildId: string, guildName: string) => {
+    navigate(`/dashboard/guilds/${guildId}/message-format`, {
+      state: { guildName }
+    });
   };
   
+  // 로딩 중 스켈레톤 UI
   if (isLoading) {
     return (
       <PageTransition>
         <div className="container mx-auto px-6 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Your Discord Servers</h1>
+            <h1 className="text-3xl font-bold mb-2">내 디스코드 서버</h1>
             <p className="text-muted-foreground">
-              Manage your Discord server integrations
+              디스코드 서버 연동을 관리할 수 있어요.
             </p>
           </div>
           
@@ -54,15 +56,16 @@ const Guilds: React.FC = () => {
       </PageTransition>
     );
   }
-  
+
+  // 오류 발생 시
   if (error) {
     return (
       <PageTransition>
         <div className="container mx-auto px-6 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Error Loading Servers</h1>
+            <h1 className="text-3xl font-bold mb-2">서버 로딩 오류</h1>
             <p className="text-muted-foreground">
-              There was a problem loading your Discord servers. Please try again later.
+              디스코드 서버 목록을 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.
             </p>
           </div>
         </div>
@@ -70,22 +73,24 @@ const Guilds: React.FC = () => {
     );
   }
 
+  // 데이터 표시
   return (
     <PageTransition>
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Your Discord Servers</h1>
+          <h1 className="text-3xl font-bold mb-2">내 디스코드 서버</h1>
           <p className="text-muted-foreground">
-            Manage your Discord server integrations
+            디스코드 서버 연동을 관리할 수 있어요.
           </p>
         </div>
         
+        {/* 검색창 */}
         <div className="max-w-md mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               type="text"
-              placeholder="Search servers..."
+              placeholder="서버 검색..."
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -93,6 +98,7 @@ const Guilds: React.FC = () => {
           </div>
         </div>
         
+        {/* 서버 목록 */}
         {filteredGuilds && filteredGuilds.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGuilds.map((guild) => (
@@ -119,7 +125,7 @@ const Guilds: React.FC = () => {
                 <CardContent className="pb-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="h-4 w-4" />
-                    <span>{guild.memberCount || 'Unknown'} members</span>
+                    <span>{guild.memberCount || '???'}명</span>
                   </div>
                   
                   <div className="mt-3 flex flex-wrap gap-1">
@@ -137,10 +143,10 @@ const Guilds: React.FC = () => {
                   <Button 
                     variant="secondary" 
                     className="w-full"
-                    onClick={() => handleSettingsClick(guild.id)}
+                    onClick={() => handleSettingsClick(guild.id, guild.name)}
                   >
                     <Settings className="h-4 w-4 mr-2" />
-                    Message Settings
+                    버튼 매크로
                   </Button>
                 </CardFooter>
               </Card>
@@ -149,11 +155,11 @@ const Guilds: React.FC = () => {
         ) : (
           <div className="text-center py-12">
             <Server className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-medium mb-2">No Servers Found</h2>
+            <h2 className="text-xl font-medium mb-2">서버를 찾을 수 없어요</h2>
             <p className="text-muted-foreground max-w-md mx-auto">
               {searchQuery 
-                ? "No servers match your search criteria." 
-                : "You don't have access to any Discord servers yet."}
+                ? "입력한 검색어와 일치하는 서버가 없습니다." 
+                : "아직 접근 가능한 디스코드 서버가 없습니다."}
             </p>
           </div>
         )}

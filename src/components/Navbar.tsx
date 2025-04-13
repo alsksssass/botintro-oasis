@@ -1,4 +1,4 @@
-
+// React 및 필요한 훅 임포트
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,23 +12,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+// 네비게이션 바 컴포넌트
 const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Handle scroll effect for glass navbar
+  // 스크롤 시 유리 효과 적용
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
+  // 경로가 변경되면 모바일 메뉴 닫기
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
@@ -48,18 +48,19 @@ const Navbar: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-      <Link to="/" className="flex items-center space-x-2">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden">
-          <img
-            src="../content/image/icon.png" // ✅ 여기에 이미지 경로 설정
-            alt="짭냥이 로고"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <span className="text-xl font-semibold">짭냥이</span>
-      </Link>
+        {/* 로고 및 제목 */}
+        <Link to="/" className="flex items-center space-x-2">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden">
+            <img
+              src="../content/image/icon.png"
+              alt="짭냥이 로고"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-xl font-semibold">짭냥이</span>
+        </Link>
 
-        {/* Desktop Navigation */}
+        {/* 데스크탑 메뉴 */}
         <div className="hidden md:flex items-center space-x-8">
           {navItems.map((item) => (
             <Link
@@ -79,7 +80,7 @@ const Navbar: React.FC = () => {
           ))}
         </div>
 
-        {/* Auth Buttons / User Menu */}
+        {/* 사용자 메뉴 or 로그인 버튼 */}
         <div className="hidden md:flex items-center space-x-2">
           <ThemeToggle />
           
@@ -99,33 +100,33 @@ const Navbar: React.FC = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="flex items-center">
                       <User className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
+                      <span>대시보드</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
+                    <span>로그아웃</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           ) : (
-            <Link to="/">
+            <Link to="/login">
               <Button variant="default" size="sm">
-                Login
+                로그인
               </Button>
             </Link>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* 모바일 메뉴 버튼 */}
         <div className="md:hidden flex items-center space-x-2">
           <ThemeToggle />
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label="메뉴 열기"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -136,7 +137,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* 모바일 메뉴 */}
       {isMobileMenuOpen && (
         <div className="md:hidden glass animate-fade-in">
           <div className="py-4 px-6 space-y-4">
@@ -161,20 +162,20 @@ const Navbar: React.FC = () => {
                     className="flex items-center py-2 text-sm font-medium"
                   >
                     <User className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
+                    <span>대시보드</span>
                   </Link>
                   <button 
                     onClick={logout}
                     className="flex items-center py-2 text-sm font-medium text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
+                    <span>로그아웃</span>
                   </button>
                 </>
               ) : (
                 <Link to="/login" className="block py-2">
                   <Button variant="default" size="sm" className="w-full">
-                    Login
+                    로그인
                   </Button>
                 </Link>
               )}
