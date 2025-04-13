@@ -19,7 +19,10 @@ import Themes from "@/pages/Themes";
 import ThemeDetail from "@/pages/ThemeDetail";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
-
+import TermsPage from '@/pages/TermsPage';
+import PrivacyPage from "./pages/PrivacyPage";
+import ContactPage from '@/pages/ContactPage';
+import DonationPage from '@/pages/DonationPage';
 // Dashboard Pages
 import Dashboard from "@/pages/Dashboard";
 import Guilds from "@/pages/Guilds";
@@ -28,7 +31,7 @@ import MessageFormat from "@/pages/MessageFormat";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider defaultTheme="system">
+  <ThemeProvider defaultTheme="dark">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
@@ -43,7 +46,12 @@ const App = () => (
                   <Route path="/commands" element={<Commands />} />
                   <Route path="/themes" element={<Themes />} />
                   <Route path="/themes/:id" element={<ThemeDetail />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/donate" element={<DonationPage />} />
+
                 </Route>
 
                 {/* Dashboard Layout Routes */}

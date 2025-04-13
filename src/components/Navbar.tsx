@@ -34,9 +34,9 @@ const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Commands', path: '/commands' },
-    { name: 'Themes', path: '/themes' },
+    { name: '홈', path: '/' },
+    { name: '명령어', path: '/commands' },
+    { name: '테마', path: '/themes' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -48,12 +48,16 @@ const Navbar: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="relative w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
-            B
-          </div>
-          <span className="text-xl font-semibold">BotName</span>
-        </Link>
+      <Link to="/" className="flex items-center space-x-2">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden">
+          <img
+            src="../content/image/icon.png" // ✅ 여기에 이미지 경로 설정
+            alt="짭냥이 로고"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <span className="text-xl font-semibold">짭냥이</span>
+      </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
@@ -106,7 +110,7 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             </div>
           ) : (
-            <Link to="/login">
+            <Link to="/">
               <Button variant="default" size="sm">
                 Login
               </Button>

@@ -1,67 +1,83 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Theme } from '@/lib/types';
-import { Heart, Hash } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Card, CardContent } from "./ui/card";
+import { User, Users, Tag, Coins, Clock, Heart } from "lucide-react"; // Heart 추가
+import { Theme } from "@/lib/types";
 
 interface ThemeCardProps {
-  theme: Theme;
-  index: number;
+    theme: {
+        id: string;
+        title: string;
+        description: string;
+        thumbnail: string;
+        tags: string[];
+        makers: string[];
+        players: string; // 인원수 문자열 형태
+        price: number;
+        time: number;
+        recommendations: number; // <-- 추천 수
+    };
+    index: number;
 }
 
-const ThemeCard: React.FC<ThemeCardProps> = ({ theme, index }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-    >
-      <Link 
-        to={`/themes/${theme.id}`}
-        className="block group overflow-hidden"
-      >
-        <div className="relative aspect-video overflow-hidden rounded-lg mb-3">
-          <img 
-            src={theme.thumbnail} 
-            alt={theme.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
-          <div 
-            className={cn(
-              "absolute bottom-3 right-3 flex items-center gap-1 px-2 py-1",
-              "rounded-full bg-white/90 dark:bg-black/80 text-foreground text-xs font-medium"
-            )}
-          >
-            <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-            <span>{theme.recommendations}</span>
-          </div>
-        </div>
-        
-        <h3 className="font-medium text-foreground group-hover:text-primary transition-colors duration-200">
-          {theme.title}
-        </h3>
-        
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-1 mb-3">
-          {theme.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-1.5">
-          {theme.tags?.map(tag => (
-            <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
-              <Hash className="h-2.5 w-2.5 mr-1" />
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </Link>
-    </motion.div>
-  );
+const formatPlayTime = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0 && mins > 0) return `${hours}시간 ${mins}분`;
+    if (hours > 0) return `${hours}시간`;
+    return `${mins}분`;
+};
+
+const ThemeCard: React.FC<ThemeCardProps> = ({ theme }) => {
+    return (
+        <Link to={`/themes/${theme.id}`}>
+            <Card className="hover:shadow-lg transition-shadow duration-300 rounded-xl overflow-hidden">
+                {/* 이미지를 relative 컨테이너로 감싼 뒤, 오버레이 배치 */}
+                <div className="relative w-full h-48">
+                    <img
+                        src={encodeURI(theme.thumbnail)}
+                        alt={theme.title}
+                        className="w-full h-full object-cover"
+                    />
+                    {/* 오른쪽 하단 오버레이 (하트 + 추천수) */}
+                    <div className="absolute bottom-2 right-2 flex items-center bg-black/50 text-white rounded-full px-2 py-1">
+                        <Heart className="w-4 h-4 text-red-500 fill-current mr-1" />
+                        <span className="text-sm">{theme.recommendations}</span>
+                    </div>
+                </div>
+
+                <CardContent className="p-4 space-y-2">
+                    <h2 className="text-xl font-bold">{theme.title}</h2>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                        {theme.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 text-sm mt-2">
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Tag className="w-4 h-4" />
+                            {theme.tags.join(", ")}
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <User className="w-4 h-4" />
+                            {theme.makers.join(", ")}
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Users className="w-4 h-4" />
+                            {theme.players}
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Coins className="w-4 h-4" />₩
+                            {theme.price.toLocaleString()}
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            {formatPlayTime(theme.time)}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </Link>
+    );
 };
 
 export default ThemeCard;
