@@ -26,7 +26,7 @@ import DonationPage from '@/pages/DonationPage';
 // Dashboard Pages
 import Dashboard from "@/pages/Dashboard";
 import Guilds from "@/pages/Guilds";
-import MessageFormat from "@/pages/MessageFormat";
+import MessageFormat from "@/pages/MessageButtonEditor";
 
 const queryClient = new QueryClient();
 

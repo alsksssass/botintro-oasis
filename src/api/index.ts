@@ -3,4 +3,4 @@
 export * from './commandsService';
 export * from './themesService';
 export * from './authService';
-export * from './messageFormatsService';
+export * from './messageButtonService';

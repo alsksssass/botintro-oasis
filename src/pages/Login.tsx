@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,28 +21,28 @@ const Login: React.FC = () => {
 
   const redirectUri = import.meta.env.VITE_AUTH_REDIRECT_URI;
 
-  // Get the intended destination or default to dashboard
+  // 리디렉션 대상 URL (기본은 /dashboard)
   const from = location.state?.from?.pathname || '/dashboard';
   
-  // If already authenticated, redirect
+  // 이미 로그인 상태라면 바로 이동
   useEffect(() => {
     if (isAuthenticated) {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
-  
+
+  // 로그인 시도
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     
     try {
-      await login(username, password);
-      // The redirection will happen automatically in the useEffect
+      await login(username, password); // 로그인 시도
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('로그인 오류:', error);
       toast({
-        title: "Login failed",
-        description: error.message || "Authentication failed",
+        title: "로그인 실패",
+        description: error.message || "인증에 실패했습니다.",
         variant: "destructive",
       });
     } finally {
@@ -56,15 +55,15 @@ const Login: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center px-6 py-20">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+            <CardTitle className="text-2xl font-bold">로그인</CardTitle>
             <CardDescription>
-              Enter your username and password to access the dashboard
+              대시보드에 접속하려면 사용자 이름과 비밀번호를 입력하세요.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">사용자 이름</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input 
@@ -78,11 +77,12 @@ const Login: React.FC = () => {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Try: admin, superuser, or user (with matching passwords)
+                  예시: admin, superuser, user
                 </p>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">비밀번호</Label>
                 <div className="relative">
                   <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input 
@@ -96,6 +96,7 @@ const Login: React.FC = () => {
                   />
                 </div>
               </div>
+
               <Button 
                 type="submit"
                 className="w-full"
@@ -104,27 +105,30 @@ const Login: React.FC = () => {
                 {isLoggingIn ? (
                   <LoaderCircle className="h-5 w-5 animate-spin" />
                 ) : (
-                  "Sign In"
+                  "로그인"
                 )}
               </Button>
             </form>
+
+            {/* Discord 로그인 버튼 */}
             <div className="mt-4">
-            <Button
+              <Button
                 type="button"
                 variant="secondary"
                 className="w-full flex items-center justify-center gap-2"
                 onClick={() => {
                     window.location.href = redirectUri;
                 }}
-                >
+              >
                 <FaDiscord className="h-4 w-4" />
-                Login with Discord
-                </Button>
+                Discord로 로그인
+              </Button>
             </div>
           </CardContent>
+
           <CardFooter className="flex justify-center">
             <p className="text-xs text-center text-muted-foreground">
-              By signing in, you agree to our Terms of Service and Privacy Policy.
+              로그인함으로써 이용 약관 및 개인정보 처리방침에 동의하게 됩니다.
             </p>
           </CardFooter>
         </Card>

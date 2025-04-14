@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,48 +22,48 @@ const DashboardLayout: React.FC = () => {
   const { user, isAuthenticated, logout, hasRole } = useAuth();
   const location = useLocation();
   
-  // Redirect to login if not authenticated
+  // 로그인되어 있지 않으면 로그인 페이지로 리디렉션
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  
-  // Different navigation items for different user roles
+
+  // 역할별로 다른 내비게이션 항목
   const navItems = [
     { 
-      name: 'Overview', 
+      name: '개요', 
       path: '/dashboard', 
       icon: LayoutDashboard, 
-      roles: ['admin', 'super'], // Only admin and super users see Overview
+      roles: ['admin', 'super'], // 관리자와 슈퍼만 가능
     },
     { 
-      name: 'Commands', 
+      name: '명령어', 
       path: '/dashboard/commands', 
       icon: Command, 
-      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Commands
+      roles: ['admin', 'super', 'regular', 'visitor'], // 모두 접근 가능
     },
     { 
-      name: 'Themes', 
+      name: '테마', 
       path: '/dashboard/themes', 
       icon: Hash, 
-      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Themes
+      roles: ['admin', 'super', 'regular', 'visitor'], 
     },
     { 
-      name: 'Guilds', 
+      name: '길드', 
       path: '/dashboard/guilds', 
       icon: Server, 
-      roles: ['admin', 'super', 'regular', 'visitor'], // Everyone can see Guilds
+      roles: ['admin', 'super', 'regular', 'visitor'], 
     },
     { 
-      name: 'User Management', 
+      name: '사용자 관리', 
       path: '/dashboard/users', 
       icon: Users, 
-      roles: ['admin'], // Only admin can see User Management
+      roles: ['admin'], // 관리자만 가능
     },
     { 
-      name: 'Settings', 
+      name: '설정', 
       path: '/dashboard/settings', 
       icon: Settings, 
-      roles: ['admin', 'super'], // Only admin and super users can see Settings
+      roles: ['admin', 'super'], 
     },
   ];
 
@@ -75,7 +74,7 @@ const DashboardLayout: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  // Filter navigation items based on user role
+  // 사용자 권한에 따른 필터링된 메뉴 목록
   const filteredNavItems = navItems.filter(item => {
     return item.roles.includes(user?.role || 'visitor');
   });
@@ -84,26 +83,30 @@ const DashboardLayout: React.FC = () => {
     <div className="min-h-screen bg-muted/30 dark:bg-background">
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
+          {/* 사이드바 */}
           <Sidebar collapsible="icon" className="border-r">
+            {/* 상단 로고와 테마 토글 */}
             <div className="flex h-14 items-center px-4 border-b">
               <Link to="/" className="flex items-center space-x-2">
                 <div className="relative w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                   B
                 </div>
-                <span className="text-lg font-semibold">Dashboard</span>
+                <span className="text-lg font-semibold">대시보드</span>
               </Link>
               <div className="ml-auto">
                 <ThemeToggle />
               </div>
             </div>
             
+            {/* 내비게이션 본문 */}
             <SidebarContent>
               <ScrollArea className="h-[calc(100vh-8rem)]">
                 <div className="px-3 py-2">
+                  {/* 메인 메뉴 */}
                   <div className="mb-6">
                     <div className="px-4 py-2">
                       <p className="text-xs font-medium text-muted-foreground">
-                        MAIN NAVIGATION
+                        주요 메뉴
                       </p>
                     </div>
                     
@@ -126,13 +129,14 @@ const DashboardLayout: React.FC = () => {
                   </div>
                   
                   <Separator className="my-4" />
-                  
+
+                  {/* 사용자 정보 섹션 */}
                   <div className="px-4 py-2">
                     <p className="text-xs font-medium text-muted-foreground">
-                      USER
+                      사용자
                     </p>
                   </div>
-                  
+
                   <div className="px-3 py-2">
                     <div className="flex items-center gap-x-3">
                       <img
@@ -146,19 +150,21 @@ const DashboardLayout: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
+                  {/* 로그아웃 버튼 */}
                   <Button
                     onClick={logout}
                     variant="ghost"
                     className="w-full justify-start text-muted-foreground hover:text-destructive mt-1"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    로그아웃
                   </Button>
                 </div>
               </ScrollArea>
             </SidebarContent>
-            
+
+            {/* 사이드바 접기 버튼 */}
             <div className="mt-auto h-12 border-t flex items-center px-4">
               <SidebarTrigger>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-70">
@@ -168,7 +174,8 @@ const DashboardLayout: React.FC = () => {
               </SidebarTrigger>
             </div>
           </Sidebar>
-          
+
+          {/* 메인 콘텐츠 */}
           <div className="flex-1 overflow-auto">
             <div className="container px-6 py-8 max-w-6xl">
               <Outlet />

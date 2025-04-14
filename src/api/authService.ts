@@ -138,7 +138,7 @@ export const authService = {
           icon: 'https://cdn.discordapp.com/icons/234567890123456789/bcdefg.png',
           owner: true,
           permissions: 8,
-          features: ['COMMUNITY']
+          features: []
         }
       ];
     }

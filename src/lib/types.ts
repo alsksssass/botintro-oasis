@@ -8,6 +8,50 @@ export interface User {
     role: UserRole;
 }
 
+export interface Channel {
+    id: string;
+    name: string;
+  }
+  
+  export interface ContentData {
+    id: string;
+    channelId: string;
+    text: string;
+    index: number;      // Added index for order tracking
+    buttonId: string;  // Added reference to parent button
+  }
+
+
+export interface ButtonData {
+    id: string;
+    name: string;
+    contents: ContentData[];
+    index: number;     // Added index for order tracking
+    groupId: string;   // Added reference to parent group
+    guildId: string;
+  }
+  
+  export interface GroupData {
+    id: string;
+    name: string;
+    buttons: ButtonData[];
+    index: number;     // Added index for order tracking
+  }
+  
+  export interface DraggableItem {
+    id: string;
+    type: 'group' | 'button';
+    index: number;
+    parentId?: string; // For buttons, this is the groupId
+  }
+  
+  export type ItemPosition = {
+    id: string;
+    type: 'group' | 'button';
+    newIndex: number;
+    newParentId?: string;
+  }
+
 export interface Command {
     id: string;
     name: string;
